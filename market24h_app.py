@@ -18,7 +18,6 @@ lang = st.sidebar.selectbox("🌐 Language / Ngôn ngữ", ["en", "vi"], format_
 st.title(get_text('title', lang))
 st.markdown(get_text('subtitle', lang))
 
-st.dataframe(data_show)
 
 # Sidebar controls
 st.sidebar.header(get_text('controls', lang))

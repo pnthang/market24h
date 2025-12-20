@@ -120,22 +120,22 @@ def create_advanced_chart(data, symbol):
     elif 'BB_Upper' in data.columns and 'BB_Lower' in data.columns:
         bb_upper_col, bb_lower_col = 'BB_Upper', 'BB_Lower'
 
-    # Bollinger Bands first so fill is behind candles
-    if bb_upper_col and bb_lower_col:
-        fig.add_trace(go.Scatter(x=data.index, y=data[bb_upper_col], mode='lines', line=dict(width=0), name='BB Upper', showlegend=False), row=1, col=1)
-        fig.add_trace(go.Scatter(x=data.index, y=data[bb_lower_col], mode='lines', line=dict(width=0), name='BB Lower', fill='tonexty', fillcolor='rgba(200,200,200,0.18)', showlegend=False), row=1, col=1)
-
-    # Candles
-    if {'Open', 'High', 'Low', 'Close'}.issubset(data.columns):
-        fig.add_trace(go.Candlestick(x=data.index, open=data['Open'], high=data['High'], low=data['Low'], close=data['Close'],
-                                     name='Price', increasing_line_color='#2ca02c', decreasing_line_color='#d62728', showlegend=True), row=1, col=1)
-
-    # Moving averages
+    # Moving averages (draw before candles)
     mas = [('SMA_20', 'SMA 20'), ('SMA_50', 'SMA 50'), ('SMA_200', 'SMA 200')]
     ma_colors = ['#ff7f0e', '#1f77b4', '#9467bd']
     for i, (col, label) in enumerate(mas):
         if col in data.columns and not data[col].isna().all():
             fig.add_trace(go.Scatter(x=data.index, y=data[col], mode='lines', name=label, line=dict(color=ma_colors[i], width=1.8)), row=1, col=1)
+
+    # Bollinger Bands first so fill is behind candles (low opacity)
+    if bb_upper_col and bb_lower_col:
+        fig.add_trace(go.Scatter(x=data.index, y=data[bb_upper_col], mode='lines', line=dict(width=0), name='BB Upper', showlegend=False), row=1, col=1)
+        fig.add_trace(go.Scatter(x=data.index, y=data[bb_lower_col], mode='lines', line=dict(width=0), name='BB Lower', fill='tonexty', fillcolor='rgba(120,120,120,0.12)', showlegend=False), row=1, col=1)
+
+    # Candles (draw after bands so they appear on top)
+    if {'Open', 'High', 'Low', 'Close'}.issubset(data.columns):
+        fig.add_trace(go.Candlestick(x=data.index, open=data['Open'], high=data['High'], low=data['Low'], close=data['Close'],
+                                     name='Price', increasing_line_color='#2ca02c', decreasing_line_color='#d62728', showlegend=True, opacity=1.0), row=1, col=1)
 
     # Volume row
     if 'Volume' in data.columns:

@@ -16,7 +16,7 @@ LANGUAGES = {
         'no_data': "No data found. Check the symbol and try again."
     },
     'vi': {
-        'title': "Market24h - Bảng điều khiển AI chứng khoán",
+        'title': "Market24h",
         'subtitle': "*Phân tích kỹ thuật và dự đoán bằng AI*",
         'controls': "Điều khiển",
         'stock_symbol': "Mã cổ phiếu",

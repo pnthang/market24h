@@ -1,3 +1,4 @@
+from market24h.db import save_dataframe
 
 
 import streamlit as st
@@ -101,5 +102,8 @@ if show_simple:
     show_price_chart(symbol, data, lang)
 if show_table:
     show_recent_data(data, lang)
+    if st.button("Save Data to PostgreSQL"):
+        save_dataframe(data.reset_index(), f"{symbol.lower()}_stock_data")
+        st.success("Data saved to PostgreSQL!")
 if show_info and info:
     show_company_info(info, lang)

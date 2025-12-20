@@ -54,7 +54,22 @@ def plot_advanced_chart(df, symbol, components=None):
         fig.add_trace(go.Scatter(x=df.index, y=df['Stoch_K'], line=dict(color='gold'), name='Stoch %K'), row=4, col=1)
     if components.get('Stoch_D'):
         fig.add_trace(go.Scatter(x=df.index, y=df['Stoch_D'], line=dict(color='orange'), name='Stoch %D'), row=4, col=1)
-    fig.update_layout(height=900, showlegend=True, template='plotly_white', font=dict(size=10))
+    fig.update_layout(
+        height=900,
+        showlegend=True,
+        template='plotly_white',
+        font=dict(size=10),
+        hovermode='x unified',  # Show crosshair and unified tooltip
+        xaxis=dict(
+            showspikes=True,
+            spikemode='across',
+            spikesnap='cursor',
+            showline=True,
+            showgrid=True,
+            tickformat='%b %d %H:%M'  # Show time frame on X axis
+        )
+    )
     for i in range(1, 4):
         fig.update_xaxes(showticklabels=False, row=i, col=1)
+    fig.update_xaxes(showspikes=True, spikemode='across', spikesnap='cursor', showline=True, showgrid=True, tickformat='%b %d %H:%M', row=4, col=1)
     return fig

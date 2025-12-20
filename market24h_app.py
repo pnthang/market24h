@@ -162,9 +162,10 @@ data_ta = add_technical_indicators(data)
 
 if show_advanced:
     st.subheader("📈 Advanced Technical Analysis")
+    show_price_chart(symbol, data, lang)
     st.plotly_chart(plot_advanced_chart(data_ta, symbol, components), use_container_width=True)
 if show_simple:
-    show_price_chart(symbol, data, lang)
+    # Price chart is now merged into Advanced Technical Analysis
 if show_table:
     show_recent_data(data, lang)
     if st.button(f"Save {symbol} Data to PostgreSQL"):

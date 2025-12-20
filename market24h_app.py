@@ -85,7 +85,10 @@ tf_selected = st.pills(
     key="timeframe_pills"
 )
 tf_label = tf_selected[0] if tf_selected else list(time_frames.keys())[2]
-period, interval = time_frames[tf_label]
+tf_label_clean = tf_label.strip() if isinstance(tf_label, str) else list(time_frames.keys())[2]
+if tf_label_clean not in time_frames:
+    tf_label_clean = list(time_frames.keys())[2]
+period, interval = time_frames[tf_label_clean]
 
 data, info = fetch_data(symbol, period)
 if interval != "1d":
@@ -169,3 +172,4 @@ if show_table:
         st.success(f"{symbol} data saved to PostgreSQL!")
 if show_info and info:
     show_company_info(info, lang)
+print(tf_label, time_frames.keys())

@@ -4,11 +4,11 @@ import streamlit as st
 
 def get_connection():
     return psycopg2.connect(
-        postgres_host = "aws-0-us-west-2.pooler.supabase.com"
-        postgres_port = 5432
-        postgres_db = "postgres"
-        postgres_user = "postgres.vmrlghpogwttgbtnuysa"
-        postgres_password = "!C4QkNyrUc9b8Ah"
+        dbname="postgres",
+        user="postgres.vmrlghpogwttgbtnuysa",
+        password="!C4QkNyrUc9b8Ah",
+        host="aws-0-us-west-2.pooler.supabase.com",
+        port=5432
     )
 
 def save_dataframe(df, table_name):

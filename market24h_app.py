@@ -166,6 +166,7 @@ if show_advanced:
     st.plotly_chart(plot_advanced_chart(data_ta, symbol, components), use_container_width=True)
 if show_simple:
     # Price chart is now merged into Advanced Technical Analysis
+    pass
 if show_table:
     show_recent_data(data, lang)
     if st.button(f"Save {symbol} Data to PostgreSQL"):

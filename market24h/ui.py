@@ -14,10 +14,18 @@ def show_recent_data(data, lang='en'):
     st.dataframe(data_show)
 
 def show_company_info(info, lang='en'):
-    st.sidebar.markdown("---")
-    st.sidebar.write(f"**{get_text('company', lang)}:** {info.get('longName', 'N/A')}")
-    st.sidebar.write(f"**{get_text('sector', lang)}:** {info.get('sector', 'N/A')}")
-    st.sidebar.write(f"**{get_text('industry', lang)}:** {info.get('industry', 'N/A')}")
-    st.sidebar.write(f"**{get_text('market_cap', lang)}:** {info.get('marketCap', 'N/A')}")
-    st.sidebar.write(f"**{get_text('country', lang)}:** {info.get('country', 'N/A')}")
-    st.sidebar.write(f"**{get_text('website', lang)}:** {info.get('website', 'N/A')}")
+    def _sanitize(val):
+        if val is None:
+            return 'N/A'
+        if not isinstance(val, str):
+            val = str(val)
+        # Escape dollar signs to avoid Streamlit math parsing on some devices
+        return val.replace('$', '\\$')
+
+    st.markdown("---")
+    st.write(f"**{get_text('company', lang)}:** {_sanitize(info.get('longName'))}")
+    st.write(f"**{get_text('sector', lang)}:** {_sanitize(info.get('sector'))}")
+    st.write(f"**{get_text('industry', lang)}:** {_sanitize(info.get('industry'))}")
+    st.write(f"**{get_text('market_cap', lang)}:** {_sanitize(info.get('marketCap'))}")
+    st.write(f"**{get_text('country', lang)}:** {_sanitize(info.get('country'))}")
+    st.write(f"**{get_text('website', lang)}:** {_sanitize(info.get('website'))}")

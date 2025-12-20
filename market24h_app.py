@@ -103,21 +103,11 @@ if data is None or data.empty:
 
 
 st.markdown("---")
-st.subheader("📊 Chart Options")
-chart_options = [
-    "Show Advanced Technical Chart",    
-    "Show Recent Data Table",
-    "Show Company Info"
-]
-selected_chart_options = st.multiselect(
-    "Chart Options",
-    chart_options,
-    default=chart_options,
-    key="chart_options_multiselect"
-)
-show_advanced = "Show Advanced Technical Chart" in selected_chart_options
-show_table = "Show Recent Data Table" in selected_chart_options
-show_info = "Show Company Info" in selected_chart_options
+# Chart Options UI removed — enable all charts/components by default
+show_advanced = True
+show_simple = True
+show_table = True
+show_info = True
 
 # Advanced chart component toggles (below chart options)
 st.markdown("**Advanced Chart Components**")

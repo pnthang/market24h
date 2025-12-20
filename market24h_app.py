@@ -1,4 +1,3 @@
-st.header(get_text('title', lang))
 from market24h.db import save_dataframe
 
 

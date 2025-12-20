@@ -63,6 +63,10 @@ else:
     symbol = top_stocks[stock_choice]
 
 # Time frame selection (like Yahoo Finance)
+
+# Move Time Frame selection below Advanced Chart Components
+st.markdown("---")
+st.markdown("**Time Frame**")
 time_frames = {
     "1D": ("1d", "5m"),
     "5D": ("5d", "15m"),
@@ -73,7 +77,7 @@ time_frames = {
     "5Y": ("5y", "1d"),
     "All": ("max", "1d")
 }
-tf_label = st.sidebar.radio("Time Frame", list(time_frames.keys()), index=2)
+tf_label = st.radio("Time Frame", list(time_frames.keys()), index=2)
 period, interval = time_frames[tf_label]
 
 data, info = fetch_data(symbol, period)

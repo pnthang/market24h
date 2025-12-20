@@ -40,14 +40,24 @@ if data is None or data.empty:
     st.stop()
 
 
+
+# Chart toggles
+st.sidebar.markdown("---")
+st.sidebar.subheader("📊 Chart Options")
+show_advanced = st.sidebar.checkbox("Show Advanced Technical Chart", value=True)
+show_simple = st.sidebar.checkbox("Show Simple Price Chart", value=True)
+show_table = st.sidebar.checkbox("Show Recent Data Table", value=True)
+show_info = st.sidebar.checkbox("Show Company Info", value=True)
+
 # Add technical indicators
 data_ta = add_technical_indicators(data)
 
-# Show advanced technical chart
-st.subheader("📈 Advanced Technical Analysis")
-st.plotly_chart(plot_advanced_chart(data_ta, symbol), use_container_width=True)
-
-show_price_chart(symbol, data, lang)
-show_recent_data(data, lang)
-if info:
+if show_advanced:
+    st.subheader("📈 Advanced Technical Analysis")
+    st.plotly_chart(plot_advanced_chart(data_ta, symbol), use_container_width=True)
+if show_simple:
+    show_price_chart(symbol, data, lang)
+if show_table:
+    show_recent_data(data, lang)
+if show_info and info:
     show_company_info(info, lang)

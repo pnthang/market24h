@@ -11,7 +11,7 @@ from market24h.charts import plot_advanced_chart
 
 
 st.set_page_config(
-    page_title="Market24h - AI Stock Dashboard",
+    page_title="Market24h - Stock Analysis",
     page_icon="📈",
     layout="wide"
 )

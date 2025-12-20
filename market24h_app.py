@@ -94,14 +94,22 @@ if data is None or data.empty:
 
 
 # Chart toggles
-st.sidebar.markdown("---")
-st.sidebar.subheader("📊 Chart Options")
-show_advanced = st.sidebar.checkbox("Show Advanced Technical Chart", value=True)
-show_simple = st.sidebar.checkbox("Show Simple Price Chart", value=True)
-show_table = st.sidebar.checkbox("Show Recent Data Table", value=True)
-show_info = st.sidebar.checkbox("Show Company Info", value=True)
 
-# Advanced chart component toggles
+# Move chart options to top of main content area
+st.markdown("---")
+st.subheader("📊 Chart Options")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    show_advanced = st.checkbox("Show Advanced Technical Chart", value=True)
+with col2:
+    show_simple = st.checkbox("Show Simple Price Chart", value=True)
+with col3:
+    show_table = st.checkbox("Show Recent Data Table", value=True)
+with col4:
+    show_info = st.checkbox("Show Company Info", value=True)
+
+# Advanced chart component toggles (below chart options)
+st.markdown("**Advanced Chart Components**")
 component_names = [
     ('Price', 'Price'),
     ('SMA_20', 'SMA 20'),
@@ -115,10 +123,11 @@ component_names = [
     ('Stoch_K', 'Stoch %K'),
     ('Stoch_D', 'Stoch %D')
 ]
-st.sidebar.markdown("**Advanced Chart Components**")
 components = {}
-for key, label in component_names:
-    components[key] = st.sidebar.checkbox(label, value=True, key=f"comp_{key}")
+comp_cols = st.columns(len(component_names))
+for idx, (key, label) in enumerate(component_names):
+    with comp_cols[idx]:
+        components[key] = st.checkbox(label, value=True, key=f"comp_{key}")
 
 # Add technical indicators
 data_ta = add_technical_indicators(data)

@@ -18,20 +18,17 @@ st.set_page_config(
 
 
 # Language selection (default to Vietnamese)
-lang = st.sidebar.selectbox(
+lang = st.selectbox(
     "🌐 Language / Ngôn ngữ",
     ["en", "vi"],
-    index=1,  # 0 for English, 1 for Vietnamese
+    index=1,
     format_func=lambda x: "English" if x=="en" else "Tiếng Việt"
 )
 
 st.title(get_text('title', lang))
+
+# Mobile-first: vertical stacking for controls
 st.markdown(get_text('subtitle', lang))
-
-
-
-
-# Top 20 US stocks
 top_stocks = {
     "Apple (AAPL)": "AAPL",
     "Microsoft (MSFT)": "MSFT",
@@ -54,11 +51,11 @@ top_stocks = {
     "Exxon Mobil (XOM)": "XOM",
     "Coca-Cola (KO)": "KO"
 }
-
-st.sidebar.header(get_text('controls', lang))
-stock_choice = st.sidebar.selectbox("Select Stock", list(top_stocks.keys()) + ["Custom"], index=0)
+st.markdown("---")
+st.markdown("### Select Stock")
+stock_choice = st.selectbox("Select Stock", list(top_stocks.keys()) + ["Custom"], index=0)
 if stock_choice == "Custom":
-    symbol = st.sidebar.text_input(get_text('stock_symbol', lang), value="AAPL").upper()
+    symbol = st.text_input(get_text('stock_symbol', lang), value="AAPL").upper()
 else:
     symbol = top_stocks[stock_choice]
 

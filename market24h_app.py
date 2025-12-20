@@ -2,12 +2,15 @@ from market24h.db import save_dataframe
 
 
 import streamlit as st
+import pandas as pd
 
+import yfinance as yf
 from market24h.data import fetch_data
 from market24h.ui import show_price_chart, show_recent_data, show_company_info
 from market24h.i18n import get_text
 from market24h.technicals import add_technical_indicators
-from market24h.charts import plot_advanced_chart
+from market24h.charts import plot_advanced_chart, create_advanced_chart, create_performance_metrics
+from market24h.analyzer import StockAnalyzer
 
 
 st.set_page_config(
@@ -109,6 +112,10 @@ show_simple = True
 show_table = True
 show_info = True
 
+# Extra analysis toggles
+show_performance = st.checkbox("📊 Performance Metrics", value=True)
+show_prediction = st.checkbox("🔮 ML Price Prediction", value=True)
+
 # Advanced chart component toggles (below chart options)
 st.markdown("**Advanced Chart Components**")
 component_names = [
@@ -139,7 +146,9 @@ data_ta = add_technical_indicators(data)
 if show_advanced:
     st.subheader("📈 Advanced Technical Analysis")
     #show_price_chart(symbol, data, lang)
-    st.plotly_chart(plot_advanced_chart(data_ta, symbol, components), use_container_width=True)
+    st.plotly_chart(create_advanced_chart(data_ta, symbol), use_container_width=True)
+    # instantiate analyzer for later sections
+    analyzer = StockAnalyzer()
 if show_simple:
     # Price chart is now merged into Advanced Technical Analysis
     pass
@@ -150,4 +159,53 @@ if show_table:
         st.success(f"{symbol} data saved to PostgreSQL!")
 if show_info and info:
     show_company_info(info, lang)
+
+# Performance metrics
+if show_performance:
+    st.subheader("📊 Performance Analysis")
+    metrics, perf_fig = create_performance_metrics(data, symbol)
+    mcol1, mcol2, mcol3, mcol4 = st.columns(4)
+    with mcol1:
+        st.metric("Total Return", f"{metrics['total_return']:.1f}%")
+    with mcol2:
+        st.metric("Volatility (Ann.)", f"{metrics['volatility']:.1f}%")
+    with mcol3:
+        st.metric("Sharpe Ratio", f"{metrics['sharpe_ratio']:.2f}")
+    with mcol4:
+        st.metric("Max Drawdown", f"{metrics['max_drawdown']:.1f}%")
+    st.plotly_chart(perf_fig, use_container_width=True)
+
+# ML Prediction
+if show_prediction:
+    st.subheader("🔮 Machine Learning Price Prediction")
+    model_info = None
+    with st.spinner("🤖 Training model..."):
+        try:
+            model_info = analyzer.train_prediction_model(data)
+        except Exception:
+            model_info = None
+
+    if model_info:
+        prediction = analyzer.predict_next_price(model_info)
+        current_price = data['Close'].iloc[-1]
+        predicted_change = ((prediction - current_price) / current_price) * 100
+        st.success("✅ Model trained successfully!")
+        pcol1, pcol2 = st.columns(2)
+        with pcol1:
+            st.metric("Next Day Prediction", f"${prediction:.2f}", delta=f"{predicted_change:+.2f}%")
+        with pcol2:
+            confidence = model_info['test_score']
+            conf_text = f"{confidence:.1%}"
+            st.metric("Model Confidence", conf_text)
+        # feature importance chart
+        try:
+            import plotly.express as px
+            fi = pd.DataFrame(list(model_info['feature_importance'].items()), columns=['Feature', 'Importance']).sort_values('Importance', ascending=False).head(10)
+            fig_imp = px.bar(fi, x='Importance', y='Feature', orientation='h', template='plotly_dark')
+            fig_imp.update_layout(height=360)
+            st.plotly_chart(fig_imp, use_container_width=True)
+        except Exception:
+            pass
+    else:
+        st.warning("⚠️ Insufficient data for reliable ML prediction.")
 print(tf_label, time_frames.keys())

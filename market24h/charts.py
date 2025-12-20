@@ -69,3 +69,30 @@ def plot_advanced_chart(df, symbol, components=None):
     )
 
     return fig
+
+
+def create_performance_metrics(data, symbol):
+    """Create performance metrics visualization (returns, volatility, sharpe, drawdown)."""
+    import numpy as np
+    data = data.copy()
+    data['Daily_Returns'] = data['Close'].pct_change()
+    data['Cumulative_Returns'] = (1 + data['Daily_Returns']).cumprod() - 1
+    total_return = data['Cumulative_Returns'].iloc[-1] * 100
+    volatility = data['Daily_Returns'].std() * np.sqrt(252) * 100 if data['Daily_Returns'].std() is not None else 0
+    sharpe_ratio = (data['Daily_Returns'].mean() * 252) / (data['Daily_Returns'].std() * np.sqrt(252)) if data['Daily_Returns'].std() not in (0, None) else 0
+    max_drawdown = ((data['Close'] / data['Close'].expanding().max()) - 1).min() * 100
+
+    # Metrics as a small dict for display
+    metrics = {
+        'total_return': total_return,
+        'volatility': volatility,
+        'sharpe_ratio': sharpe_ratio,
+        'max_drawdown': max_drawdown
+    }
+
+    # cumulative returns chart
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data.index, y=data['Cumulative_Returns'] * 100, mode='lines', name='Cumulative Returns', line=dict(color='#00ff88', width=2)))
+    fig.update_layout(title=f'{symbol} Cumulative Returns (%)', xaxis_title='Date', yaxis_title='Cumulative Return (%)', template='plotly_dark', height=360)
+
+    return metrics, fig

@@ -74,7 +74,7 @@ time_frames = {
     "5Y": ("5y", "1d"),
     "All": ("max", "1d")
 }
-tf_label = st.radio("Time Frame", list(time_frames.keys()), index=2)
+tf_label = st.radio("Time Frame", list(time_frames.keys()), index=2, horizontal=True)
 tf_label_clean = tf_label.strip() if isinstance(tf_label, str) else list(time_frames.keys())[2]
 if tf_label_clean not in time_frames:
     tf_label_clean = list(time_frames.keys())[2]

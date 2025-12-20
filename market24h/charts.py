@@ -142,7 +142,7 @@ def create_advanced_chart(data, symbol):
         vol_colors = ['#2ca02c' if (row['Close'] >= row['Open']) else '#d62728' for _, row in data[['Open','Close']].iterrows()]
         fig.add_trace(go.Bar(x=data.index, y=data['Volume'], marker_color=vol_colors, name='Volume', opacity=0.85, showlegend=True), row=2, col=1)
         if 'Volume_SMA' in data.columns:
-            fig.add_trace(go.Scatter(x=data.index, y=data['Volume_SMA'], mode='lines', name='Vol SMA', line=dict(color='#1f77b4', width=1.2)), row=2, col=1)
+            fig.add_trace(go.Scatter(x=data.index, y=data['Volume_SMA'], mode='lines', name='Vol SMA', line=dict(color='#1f77b4', width=1.2), showlegend=False), row=2, col=1)
 
     # MACD row
     if 'MACD' in data.columns:
@@ -153,7 +153,13 @@ def create_advanced_chart(data, symbol):
     if 'MACD_histogram' in data.columns:
         hist = data['MACD_histogram']
         hist_colors = ['#2ca02c' if v >= 0 else '#d62728' for v in hist]
-        fig.add_trace(go.Bar(x=data.index, y=hist, marker_color=hist_colors, name='Histogram', opacity=0.8), row=3, col=1)
+        fig.add_trace(go.Bar(x=data.index, y=hist, marker_color=hist_colors, name='Histogram', opacity=0.8, showlegend=True), row=3, col=1)
+        # center MACD subplot around zero
+        try:
+            max_abs = max(abs(hist.max()), abs(hist.min()), abs(data['MACD'].max()) if 'MACD' in data.columns else 0)
+            fig.update_yaxes(range=[-max_abs * 1.2, max_abs * 1.2], row=3, col=1)
+        except Exception:
+            pass
 
     # RSI & Stochastic row
     if 'RSI' in data.columns:
@@ -179,6 +185,12 @@ def create_advanced_chart(data, symbol):
     # RSI axis range
     if 'RSI' in data.columns:
         fig.update_yaxes(range=[0, 100], row=4, col=1)
+
+    # Format volume axis with SI suffixes (Plotly will choose M/B when appropriate)
+    try:
+        fig.update_yaxes(tickformat=',.0s', row=2, col=1)
+    except Exception:
+        pass
 
     # axis titles
     fig.update_yaxes(title_text='Price', row=1, col=1)

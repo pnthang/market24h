@@ -28,16 +28,39 @@ st.title(get_text('title', lang))
 st.markdown(get_text('subtitle', lang))
 
 
+
 # Sidebar controls
 st.sidebar.header(get_text('controls', lang))
 symbol = st.sidebar.text_input(get_text('stock_symbol', lang), value="AAPL").upper()
-period = st.sidebar.selectbox(get_text('period', lang), ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=3)
+
+# Time frame selection (like Yahoo Finance)
+time_frames = {
+    "1D": ("1d", "5m"),
+    "5D": ("5d", "15m"),
+    "1M": ("1mo", "30m"),
+    "6M": ("6mo", "1d"),
+    "YTD": ("ytd", "1d"),
+    "1Y": ("1y", "1d"),
+    "5Y": ("5y", "1d"),
+    "All": ("max", "1d")
+}
+tf_label = st.sidebar.radio("Time Frame", list(time_frames.keys()), index=2)
+period, interval = time_frames[tf_label]
 
 data, info = fetch_data(symbol, period)
+if interval != "1d":
+    # For intraday, yfinance requires interval argument
+    data, info = fetch_data(symbol, period)
+    try:
+        stock = yf.Ticker(symbol)
+        data = stock.history(period=period, interval=interval)
+    except Exception:
+        pass
 
 if data is None or data.empty:
     st.warning(get_text('no_data', lang))
     st.stop()
+
 
 
 
@@ -49,12 +72,31 @@ show_simple = st.sidebar.checkbox("Show Simple Price Chart", value=True)
 show_table = st.sidebar.checkbox("Show Recent Data Table", value=True)
 show_info = st.sidebar.checkbox("Show Company Info", value=True)
 
+# Advanced chart component toggles
+component_names = [
+    ('Price', 'Price'),
+    ('SMA_20', 'SMA 20'),
+    ('SMA_50', 'SMA 50'),
+    ('BB_Upper', 'BB Upper'),
+    ('BB_Lower', 'BB Lower'),
+    ('Volume', 'Volume'),
+    ('MACD', 'MACD'),
+    ('MACD_Signal', 'Signal'),
+    ('RSI', 'RSI'),
+    ('Stoch_K', 'Stoch %K'),
+    ('Stoch_D', 'Stoch %D')
+]
+st.sidebar.markdown("**Advanced Chart Components**")
+components = {}
+for key, label in component_names:
+    components[key] = st.sidebar.checkbox(label, value=True, key=f"comp_{key}")
+
 # Add technical indicators
 data_ta = add_technical_indicators(data)
 
 if show_advanced:
     st.subheader("📈 Advanced Technical Analysis")
-    st.plotly_chart(plot_advanced_chart(data_ta, symbol), use_container_width=True)
+    st.plotly_chart(plot_advanced_chart(data_ta, symbol, components), use_container_width=True)
 if show_simple:
     show_price_chart(symbol, data, lang)
 if show_table:

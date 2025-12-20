@@ -1,7 +1,8 @@
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+
 
 def plot_advanced_chart(df, symbol, components=None):
+    """Render all selected components on a single chart with volume on a secondary y-axis."""
     if components is None:
         components = {
             'Price': True,
@@ -16,60 +17,55 @@ def plot_advanced_chart(df, symbol, components=None):
             'Stoch_K': True,
             'Stoch_D': True
         }
-    fig = make_subplots(
-        rows=4, cols=1,
-        shared_xaxes=True,
-        vertical_spacing=0.03,
-        subplot_titles=(f'{symbol} Price & MAs', 'Volume', 'MACD', 'RSI & Stochastic'),
-        row_heights=[0.5, 0.15, 0.2, 0.15]
-    )
-    # Candlestick
-    if components.get('Price'):
-        fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name='Price'), row=1, col=1)
-    # Moving averages
-    if components.get('SMA_20'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['SMA_20'], line=dict(color='orange'), name='SMA 20'), row=1, col=1)
-    if components.get('SMA_50'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], line=dict(color='blue'), name='SMA 50'), row=1, col=1)
-    # Bollinger Bands
-    if components.get('BB_Upper'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['BB_Upper'], line=dict(color='gray', width=1), name='BB Upper', showlegend=False), row=1, col=1)
-    if components.get('BB_Lower'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['BB_Lower'], line=dict(color='gray', width=1), name='BB Lower', fill='tonexty', fillcolor='rgba(128,128,128,0.1)', showlegend=False), row=1, col=1)
-    # Volume
-    if components.get('Volume'):
-        fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color='lightblue', name='Volume'), row=2, col=1)
-    # MACD
-    if components.get('MACD'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['MACD'], line=dict(color='blue'), name='MACD'), row=3, col=1)
-    if components.get('MACD_Signal'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['MACD_Signal'], line=dict(color='orange'), name='Signal'), row=3, col=1)
-    # RSI
-    if components.get('RSI'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], line=dict(color='purple'), name='RSI'), row=4, col=1)
-        fig.add_hline(y=70, line_dash="dash", line_color="red", row=4, col=1)
-        fig.add_hline(y=30, line_dash="dash", line_color="green", row=4, col=1)
-    # Stochastic
-    if components.get('Stoch_K'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['Stoch_K'], line=dict(color='gold'), name='Stoch %K'), row=4, col=1)
-    if components.get('Stoch_D'):
-        fig.add_trace(go.Scatter(x=df.index, y=df['Stoch_D'], line=dict(color='orange'), name='Stoch %D'), row=4, col=1)
+
+    fig = go.Figure()
+
+    # Price (candlestick)
+    if components.get('Price') and {'Open', 'High', 'Low', 'Close'}.issubset(df.columns):
+        fig.add_trace(go.Candlestick(
+            x=df.index,
+            open=df['Open'],
+            high=df['High'],
+            low=df['Low'],
+            close=df['Close'],
+            name='Price'
+        ))
+
+    # Moving averages and bands
+    if components.get('SMA_20') and 'SMA_20' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['SMA_20'], mode='lines', name='SMA 20'))
+    if components.get('SMA_50') and 'SMA_50' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], mode='lines', name='SMA 50'))
+    if components.get('BB_Upper') and 'BB_Upper' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['BB_Upper'], mode='lines', name='BB Upper', line=dict(width=1), showlegend=False))
+    if components.get('BB_Lower') and 'BB_Lower' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['BB_Lower'], mode='lines', name='BB Lower', fill='tonexty', fillcolor='rgba(128,128,128,0.1)', showlegend=False))
+
+    # Volume (secondary y-axis)
+    if components.get('Volume') and 'Volume' in df:
+        fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name='Volume', marker_color='lightblue', opacity=0.3, yaxis='y2'))
+
+    # Technical indicators as overlays
+    if components.get('MACD') and 'MACD' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['MACD'], mode='lines', name='MACD'))
+    if components.get('MACD_Signal') and 'MACD_Signal' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['MACD_Signal'], mode='lines', name='MACD Signal'))
+    if components.get('RSI') and 'RSI' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], mode='lines', name='RSI'))
+    if components.get('Stoch_K') and 'Stoch_K' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['Stoch_K'], mode='lines', name='Stoch %K'))
+    if components.get('Stoch_D') and 'Stoch_D' in df:
+        fig.add_trace(go.Scatter(x=df.index, y=df['Stoch_D'], mode='lines', name='Stoch %D'))
+
+    # Layout: primary y for price/indicators, secondary y for volume
     fig.update_layout(
-        height=900,
-        showlegend=True,
+        title=f"{symbol} - Complete Technical Analysis",
+        xaxis=dict(type='date', showspikes=True, spikemode='across', spikesnap='cursor'),
+        yaxis=dict(title='Price'),
+        yaxis2=dict(title='Volume', overlaying='y', side='right', showgrid=False),
         template='plotly_white',
-        font=dict(size=10),
-        hovermode='x unified',  # Show crosshair and unified tooltip
-        xaxis=dict(
-            showspikes=True,
-            spikemode='across',
-            spikesnap='cursor',
-            showline=True,
-            showgrid=True,
-            tickformat='%b %d %H:%M'  # Show time frame on X axis
-        )
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+        hovermode='x unified'
     )
-    for i in range(1, 4):
-        fig.update_xaxes(showticklabels=False, row=i, col=1)
-    fig.update_xaxes(showspikes=True, spikemode='across', spikesnap='cursor', showline=True, showgrid=True, tickformat='%b %d %H:%M', row=4, col=1)
+
     return fig

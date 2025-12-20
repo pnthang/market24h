@@ -101,6 +101,7 @@ if data is None or data.empty:
 
 # Move chart options to top of main content area
 
+
 st.markdown("---")
 st.subheader("📊 Chart Options")
 chart_options = [
@@ -109,11 +110,12 @@ chart_options = [
     "Show Recent Data Table",
     "Show Company Info"
 ]
-selected_chart_options = st.multiselect(
-    "Select Chart Options",
-    chart_options,
+selected_chart_options = st.pills(
+    "Chart Options",
+    options=chart_options,
+    selection_mode="multi",
     default=chart_options,
-    key="chart_options_multiselect"
+    key="chart_options_pills"
 )
 show_advanced = "Show Advanced Technical Chart" in selected_chart_options
 show_simple = "Show Simple Price Chart" in selected_chart_options
@@ -136,11 +138,12 @@ component_names = [
     ('Stoch_D', 'Stoch %D')
 ]
 component_labels = [label for key, label in component_names]
-selected_components = st.multiselect(
-    "Select Advanced Chart Components",
-    component_labels,
+selected_components = st.pills(
+    "Advanced Chart Components",
+    options=component_labels,
+    selection_mode="multi",
     default=component_labels,
-    key="components_multiselect"
+    key="components_pills"
 )
 components = {key: (label in selected_components) for key, label in component_names}
 

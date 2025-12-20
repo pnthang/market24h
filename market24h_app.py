@@ -105,8 +105,7 @@ if data is None or data.empty:
 st.markdown("---")
 st.subheader("📊 Chart Options")
 chart_options = [
-    "Show Advanced Technical Chart",
-    "Show Simple Price Chart",
+    "Show Advanced Technical Chart",    
     "Show Recent Data Table",
     "Show Company Info"
 ]
@@ -117,7 +116,6 @@ selected_chart_options = st.multiselect(
     key="chart_options_multiselect"
 )
 show_advanced = "Show Advanced Technical Chart" in selected_chart_options
-show_simple = "Show Simple Price Chart" in selected_chart_options
 show_table = "Show Recent Data Table" in selected_chart_options
 show_info = "Show Company Info" in selected_chart_options
 
@@ -150,7 +148,7 @@ data_ta = add_technical_indicators(data)
 
 if show_advanced:
     st.subheader("📈 Advanced Technical Analysis")
-    show_price_chart(symbol, data, lang)
+    #show_price_chart(symbol, data, lang)
     st.plotly_chart(plot_advanced_chart(data_ta, symbol, components), use_container_width=True)
 if show_simple:
     # Price chart is now merged into Advanced Technical Analysis

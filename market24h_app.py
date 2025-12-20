@@ -77,13 +77,14 @@ time_frames = {
     "5Y": ("5y", "1d"),
     "All": ("max", "1d")
 }
-tf_label = st.pills(
+tf_selected = st.pills(
     "Time Frame",
     options=list(time_frames.keys()),
     selection_mode="single",
     default=[list(time_frames.keys())[2]],
     key="timeframe_pills"
-)[0]
+)
+tf_label = tf_selected[0] if tf_selected else list(time_frames.keys())[2]
 period, interval = time_frames[tf_label]
 
 data, info = fetch_data(symbol, period)

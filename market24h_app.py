@@ -1,9 +1,12 @@
 
 
 import streamlit as st
+
 from market24h.data import fetch_data
 from market24h.ui import show_price_chart, show_recent_data, show_company_info
 from market24h.i18n import get_text
+from market24h.technicals import add_technical_indicators
+from market24h.charts import plot_advanced_chart
 
 
 st.set_page_config(
@@ -12,8 +15,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# Language selection
-lang = st.sidebar.selectbox("🌐 Language / Ngôn ngữ", ["en", "vi"], format_func=lambda x: "English" if x=="en" else "Tiếng Việt")
+
+# Language selection (default to Vietnamese)
+lang = st.sidebar.selectbox(
+    "🌐 Language / Ngôn ngữ",
+    ["en", "vi"],
+    index=1,  # 0 for English, 1 for Vietnamese
+    format_func=lambda x: "English" if x=="en" else "Tiếng Việt"
+)
 
 st.title(get_text('title', lang))
 st.markdown(get_text('subtitle', lang))
@@ -29,6 +38,14 @@ data, info = fetch_data(symbol, period)
 if data is None or data.empty:
     st.warning(get_text('no_data', lang))
     st.stop()
+
+
+# Add technical indicators
+data_ta = add_technical_indicators(data)
+
+# Show advanced technical chart
+st.subheader("📈 Advanced Technical Analysis")
+st.plotly_chart(plot_advanced_chart(data_ta, symbol), use_container_width=True)
 
 show_price_chart(symbol, data, lang)
 show_recent_data(data, lang)

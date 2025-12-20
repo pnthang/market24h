@@ -30,9 +30,37 @@ st.markdown(get_text('subtitle', lang))
 
 
 
-# Sidebar controls
+
+# Top 20 US stocks
+top_stocks = {
+    "Apple (AAPL)": "AAPL",
+    "Microsoft (MSFT)": "MSFT",
+    "Alphabet (GOOGL)": "GOOGL",
+    "Amazon (AMZN)": "AMZN",
+    "NVIDIA (NVDA)": "NVDA",
+    "Meta (META)": "META",
+    "Tesla (TSLA)": "TSLA",
+    "Berkshire Hathaway (BRK-B)": "BRK-B",
+    "Visa (V)": "V",
+    "JPMorgan Chase (JPM)": "JPM",
+    "Johnson & Johnson (JNJ)": "JNJ",
+    "UnitedHealth (UNH)": "UNH",
+    "Eli Lilly (LLY)": "LLY",
+    "Walmart (WMT)": "WMT",
+    "Mastercard (MA)": "MA",
+    "Procter & Gamble (PG)": "PG",
+    "Broadcom (AVGO)": "AVGO",
+    "Home Depot (HD)": "HD",
+    "Exxon Mobil (XOM)": "XOM",
+    "Coca-Cola (KO)": "KO"
+}
+
 st.sidebar.header(get_text('controls', lang))
-symbol = st.sidebar.text_input(get_text('stock_symbol', lang), value="AAPL").upper()
+stock_choice = st.sidebar.selectbox("Select Stock", list(top_stocks.keys()) + ["Custom"], index=0)
+if stock_choice == "Custom":
+    symbol = st.sidebar.text_input(get_text('stock_symbol', lang), value="AAPL").upper()
+else:
+    symbol = top_stocks[stock_choice]
 
 # Time frame selection (like Yahoo Finance)
 time_frames = {
@@ -102,8 +130,8 @@ if show_simple:
     show_price_chart(symbol, data, lang)
 if show_table:
     show_recent_data(data, lang)
-    if st.button("Save Data to PostgreSQL"):
+    if st.button(f"Save {symbol} Data to PostgreSQL"):
         save_dataframe(data.reset_index(), f"{symbol.lower()}_stock_data")
-        st.success("Data saved to PostgreSQL!")
+        st.success(f"{symbol} data saved to PostgreSQL!")
 if show_info and info:
     show_company_info(info, lang)

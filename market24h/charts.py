@@ -96,3 +96,75 @@ def create_performance_metrics(data, symbol):
     fig.update_layout(title=f'{symbol} Cumulative Returns (%)', xaxis_title='Date', yaxis_title='Cumulative Return (%)', template='plotly_dark', height=360)
 
     return metrics, fig
+
+
+def create_advanced_chart(data, symbol):
+    """Create an advanced candlestick chart with technical indicators overlaid and
+    volume shown on a secondary y-axis."""
+    fig = go.Figure()
+
+    # Candlestick
+    if {'Open', 'High', 'Low', 'Close'}.issubset(data.columns):
+        fig.add_trace(go.Candlestick(
+            x=data.index,
+            open=data['Open'],
+            high=data['High'],
+            low=data['Low'],
+            close=data['Close'],
+            name='Price',
+            increasing_line_color='#00ff88',
+            decreasing_line_color='#ff4444'
+        ))
+
+    # Moving averages
+    mas = [('SMA_20', 'SMA 20'), ('SMA_50', 'SMA 50'), ('SMA_200', 'SMA 200')]
+    colors = ['#ff9500', '#007aff', '#5856d6']
+    for i, (col, label) in enumerate(mas):
+        if col in data.columns and not data[col].isna().all():
+            fig.add_trace(go.Scatter(x=data.index, y=data[col], mode='lines', name=label, line=dict(color=colors[i], width=1.5)))
+
+    # Bollinger Bands
+    if 'BB_upper' in data.columns and 'BB_lower' in data.columns:
+        fig.add_trace(go.Scatter(x=data.index, y=data['BB_upper'], mode='lines', line=dict(color='rgba(200,200,200,0.5)', width=1), name='BB Upper', showlegend=False))
+        fig.add_trace(go.Scatter(x=data.index, y=data['BB_lower'], mode='lines', line=dict(color='rgba(200,200,200,0.5)', width=1), name='BB Lower', fill='tonexty', fillcolor='rgba(200,200,200,0.08)', showlegend=False))
+
+    # Volume on secondary axis
+    if 'Volume' in data.columns:
+        vol_colors = ['#00ff88' if row['Close'] >= row['Open'] else '#ff4444' for _, row in data[['Open', 'Close']].iterrows()]
+        fig.add_trace(go.Bar(x=data.index, y=data['Volume'], name='Volume', marker_color=vol_colors, opacity=0.6, yaxis='y2'))
+
+    # MACD
+    if 'MACD' in data.columns:
+        fig.add_trace(go.Scatter(x=data.index, y=data['MACD'], mode='lines', name='MACD', line=dict(color='#007aff', width=1.5)))
+    sig_col = 'MACD_signal' if 'MACD_signal' in data.columns else ('MACD_Signal' if 'MACD_Signal' in data.columns else None)
+    if sig_col:
+        fig.add_trace(go.Scatter(x=data.index, y=data[sig_col], mode='lines', name='Signal', line=dict(color='#ff9500', width=1.5)))
+    if 'MACD_histogram' in data.columns:
+        hist = data['MACD_histogram']
+        hist_colors = ['#00ff88' if v >= 0 else '#ff4444' for v in hist]
+        fig.add_trace(go.Bar(x=data.index, y=hist, name='MACD Histogram', marker_color=hist_colors, opacity=0.5))
+
+    # RSI
+    if 'RSI' in data.columns:
+        fig.add_trace(go.Scatter(x=data.index, y=data['RSI'], mode='lines', name='RSI', line=dict(color='#af52de', width=1.5)))
+        fig.add_hline(y=70, line_dash='dash', line_color='red', opacity=0.6)
+        fig.add_hline(y=30, line_dash='dash', line_color='green', opacity=0.6)
+
+    # Stochastic
+    if 'Stoch_K' in data.columns:
+        fig.add_trace(go.Scatter(x=data.index, y=data['Stoch_K'], mode='lines', name='Stoch %K', line=dict(color='#ffcc00', width=1)))
+    if 'Stoch_D' in data.columns:
+        fig.add_trace(go.Scatter(x=data.index, y=data['Stoch_D'], mode='lines', name='Stoch %D', line=dict(color='#ff6600', width=1)))
+
+    fig.update_layout(
+        title=f'{symbol} - Advanced Technical Chart',
+        template='plotly_dark',
+        xaxis=dict(rangeslider=dict(visible=False)),
+        yaxis=dict(title='Price'),
+        yaxis2=dict(title='Volume', overlaying='y', side='right', showgrid=False, position=1.0),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+        hovermode='x unified',
+        height=800
+    )
+
+    return fig

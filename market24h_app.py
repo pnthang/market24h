@@ -1,3 +1,4 @@
+st.header(get_text('title', lang))
 from market24h.db import save_dataframe
 
 
@@ -52,7 +53,7 @@ top_stocks = {
     "Coca-Cola (KO)": "KO"
 }
 st.markdown("---")
-st.markdown("### Select Stock")
+#st.markdown("### Select Stock")
 stock_choice = st.selectbox("Select Stock", list(top_stocks.keys()) + ["Custom"], index=0)
 if stock_choice == "Custom":
     symbol = st.text_input(get_text('stock_symbol', lang), value="AAPL").upper()
@@ -63,7 +64,7 @@ else:
 
 # Move Time Frame selection below Advanced Chart Components
 st.markdown("---")
-st.markdown("**Time Frame**")
+#st.markdown("**Time Frame**")
 time_frames = {
     "1D": ("1d", "5m"),
     "5D": ("5d", "15m"),

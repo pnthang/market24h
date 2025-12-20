@@ -100,17 +100,25 @@ if data is None or data.empty:
 # Chart toggles
 
 # Move chart options to top of main content area
+
 st.markdown("---")
 st.subheader("📊 Chart Options")
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    show_advanced = st.checkbox("Show Advanced Technical Chart", value=True)
-with col2:
-    show_simple = st.checkbox("Show Simple Price Chart", value=True)
-with col3:
-    show_table = st.checkbox("Show Recent Data Table", value=True)
-with col4:
-    show_info = st.checkbox("Show Company Info", value=True)
+chart_options = [
+    "Show Advanced Technical Chart",
+    "Show Simple Price Chart",
+    "Show Recent Data Table",
+    "Show Company Info"
+]
+selected_chart_options = st.multiselect(
+    "Select Chart Options",
+    chart_options,
+    default=chart_options,
+    key="chart_options_multiselect"
+)
+show_advanced = "Show Advanced Technical Chart" in selected_chart_options
+show_simple = "Show Simple Price Chart" in selected_chart_options
+show_table = "Show Recent Data Table" in selected_chart_options
+show_info = "Show Company Info" in selected_chart_options
 
 # Advanced chart component toggles (below chart options)
 st.markdown("**Advanced Chart Components**")
@@ -127,11 +135,14 @@ component_names = [
     ('Stoch_K', 'Stoch %K'),
     ('Stoch_D', 'Stoch %D')
 ]
-components = {}
-comp_cols = st.columns(len(component_names))
-for idx, (key, label) in enumerate(component_names):
-    with comp_cols[idx]:
-        components[key] = st.checkbox(label, value=True, key=f"comp_{key}")
+component_labels = [label for key, label in component_names]
+selected_components = st.multiselect(
+    "Select Advanced Chart Components",
+    component_labels,
+    default=component_labels,
+    key="components_multiselect"
+)
+components = {key: (label in selected_components) for key, label in component_names}
 
 # Add technical indicators
 data_ta = add_technical_indicators(data)

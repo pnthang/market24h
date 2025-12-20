@@ -74,14 +74,7 @@ time_frames = {
     "5Y": ("5y", "1d"),
     "All": ("max", "1d")
 }
-tf_selected = st.pills(
-    "Time Frame",
-    options=list(time_frames.keys()),
-    selection_mode="single",
-    default=[list(time_frames.keys())[2]],
-    key="timeframe_pills"
-)
-tf_label = tf_selected[0] if tf_selected else list(time_frames.keys())[2]
+tf_label = st.radio("Time Frame", list(time_frames.keys()), index=2)
 tf_label_clean = tf_label.strip() if isinstance(tf_label, str) else list(time_frames.keys())[2]
 if tf_label_clean not in time_frames:
     tf_label_clean = list(time_frames.keys())[2]
@@ -117,12 +110,11 @@ chart_options = [
     "Show Recent Data Table",
     "Show Company Info"
 ]
-selected_chart_options = st.pills(
+selected_chart_options = st.multiselect(
     "Chart Options",
-    options=chart_options,
-    selection_mode="multi",
+    chart_options,
     default=chart_options,
-    key="chart_options_pills"
+    key="chart_options_multiselect"
 )
 show_advanced = "Show Advanced Technical Chart" in selected_chart_options
 show_simple = "Show Simple Price Chart" in selected_chart_options
@@ -145,12 +137,11 @@ component_names = [
     ('Stoch_D', 'Stoch %D')
 ]
 component_labels = [label for key, label in component_names]
-selected_components = st.pills(
+selected_components = st.multiselect(
     "Advanced Chart Components",
-    options=component_labels,
-    selection_mode="multi",
+    component_labels,
     default=component_labels,
-    key="components_pills"
+    key="components_multiselect"
 )
 components = {key: (label in selected_components) for key, label in component_names}
 
